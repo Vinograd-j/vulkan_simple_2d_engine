@@ -9,14 +9,15 @@ void PhysicalDevice::ChoosePhysicalDevice(uint32_t deviceID)
 
     uint32_t deviceCount = 0;
 
-    vkEnumeratePhysicalDevices(*_instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
 
     if (deviceCount == 0)
         throw std::runtime_error("There is no any physical device on this computer");
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(*_instance, &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(_instance, &deviceCount, devices.data());
 
+    bool found = false;
     for (const auto& device: devices)
     {
         VkPhysicalDeviceProperties properties;
@@ -28,37 +29,62 @@ void PhysicalDevice::ChoosePhysicalDevice(uint32_t deviceID)
                 throw std::invalid_argument("provided device is not suitable for this program");
 
             _device = device;
+            found = true;
             break;
         }
     }
+
+    if (!found)
+        throw std::runtime_error("No physical device with the specified deviceID found");
 }
 
-SwapChainSupportDetails PhysicalDevice::QuerySwapChainSupport(const VkPhysicalDevice& device) const
+SwapChainSupportDetails PhysicalDevice::QuerySwapChainSupportDetails(const VkPhysicalDevice& device) const
 {
     SwapChainSupportDetails details;
 
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, *_surface, &details._capabilities);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, _surface, &details._capabilities);
 
     uint32_t formatCount = 0;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(device, *_surface, &formatCount, nullptr);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, nullptr);
 
     if (formatCount != 0)
     {
         details._formats.resize(formatCount);
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, *_surface, &formatCount, details._formats.data());
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface, &formatCount, details._formats.data());
     }
 
     uint32_t presentModeCount = 0;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(device, *_surface, &presentModeCount, nullptr);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, _surface, &presentModeCount, nullptr);
 
     if (presentModeCount != 0)
     {
         details._presentModes.resize(presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, *_surface, &presentModeCount, details._presentModes.data());
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, _surface, &presentModeCount, details._presentModes.data());
     }
 
     return details;
 }
+
+std::map<FamilyType, uint32_t> PhysicalDevice::GetFamilies(const VkPhysicalDevice& device) const
+{
+    QueueFamilyIndices indices = FindQueueFamilies(device);
+
+    std::map<FamilyType, uint32_t> familyTypeToIndex;
+
+    if (indices._graphicsFamily)
+        familyTypeToIndex[GRAPHICS] = indices._graphicsFamily.value();
+    if (indices._computeFamily)
+        familyTypeToIndex[COMPUTE] = indices._computeFamily.value();
+    if (indices._presentFamily)
+        familyTypeToIndex[PRESENT] = indices._presentFamily.value();
+    if (indices._sparceBindingFamily)
+        familyTypeToIndex[SPARCE_BINDING] = indices._sparceBindingFamily.value();
+    if (indices._transferFamily)
+        familyTypeToIndex[TRANSFER] = indices._transferFamily.value();
+
+    return familyTypeToIndex;
+}
+
 
 QueueFamilyIndices PhysicalDevice::FindQueueFamilies(const VkPhysicalDevice& device) const
 {
@@ -83,7 +109,7 @@ QueueFamilyIndices PhysicalDevice::FindQueueFamilies(const VkPhysicalDevice& dev
         if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT)
             indices._transferFamily = i;
 
-        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, *_surface, &presentSupport);
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, _surface, &presentSupport);
         if (presentSupport)
             indices._presentFamily = i;
 
@@ -98,11 +124,10 @@ bool PhysicalDevice::IsDeviceSuitable(const VkPhysicalDevice& device) const
     QueueFamilyIndices indices = FindQueueFamilies(device);
 
     bool extensionSupported = CheckDeviceExtensionsSupport(device);
-
     bool swapChainAdequate = false;
     if (extensionSupported)
     {
-        SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
+        SwapChainSupportDetails swapChainSupport = QuerySwapChainSupportDetails(device);
         swapChainAdequate = !swapChainSupport._formats.empty() && !swapChainSupport._presentModes.empty();
     }
 
@@ -123,4 +148,12 @@ bool PhysicalDevice::CheckDeviceExtensionsSupport(const VkPhysicalDevice& device
         requiredExtensions.erase(extension.extensionName);
 
     return requiredExtensions.empty();
+}
+
+VkPhysicalDeviceFeatures PhysicalDevice::GetFeatures(const VkPhysicalDevice device) const
+{
+    VkPhysicalDeviceFeatures features;
+    vkGetPhysicalDeviceFeatures(device, &features);
+
+    return features;
 }

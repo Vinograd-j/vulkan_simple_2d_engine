@@ -27,4 +27,6 @@ public:
 
     const GLFWwindow* WindowPointer() const { return _window; }
 
+    ~Window();
+
 };

@@ -3,7 +3,7 @@
 #include "vulkan-application.h"
 #include "vulkan/vulkan.hpp"
 
-class instance
+class Instance
 {
 
 private:
@@ -24,7 +24,7 @@ private:
 
 public:
 
-    explicit instance(const VulkanApplication& application, const std::vector<const char*>& extensions, const std::vector<const char*> layers, void* pNext, const VkInstanceCreateFlags& flags) :
+    explicit Instance(const VulkanApplication& application, const std::vector<const char*>& extensions, const std::vector<const char*> layers, void* pNext, const VkInstanceCreateFlags& flags) :
                                                                                                                                                              _application(application),
                                                                                                                                                              _pNext(pNext),
                                                                                                                                                              _extensions(extensions),
@@ -32,6 +32,8 @@ public:
                                                                                                                                                              _flags(flags) {}
 
     void CreateInstance();
+
+    ~Instance();
 
 public:
 

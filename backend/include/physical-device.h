@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include "queue-family-indices.h"
 #include "Vulkan/vulkan.hpp"
 
@@ -16,21 +18,31 @@ private:
 
 private:
 
-    VkInstance* _instance;
+    VkInstance _instance;
 
-    VkSurfaceKHR* _surface;
+    VkSurfaceKHR _surface;
 
     std::vector<const char*> _extensions;
 
 public:
 
-    explicit PhysicalDevice(VkInstance* instance, VkSurfaceKHR* surface, const std::vector<const char*>& requiredExtensions) : _instance(instance), _surface(surface), _extensions(requiredExtensions) {}
+    explicit PhysicalDevice(const VkInstance& instance, const VkSurfaceKHR& surface, const std::vector<const char*>& requiredExtensions, VkPhysicalDeviceFeatures* requiredFeatures) :
+                                                                                                                                                         _instance(instance),
+                                                                                                                                                         _surface(surface),
+                                                                                                                                                         _extensions(requiredExtensions),
+                                                                                                                                                         _features(requiredFeatures) {}
 
     void ChoosePhysicalDevice(uint32_t deviceID);
 
-    VkPhysicalDevice* GetPhysicalDevice() { return &_device; }
 
-    SwapChainSupportDetails QuerySwapChainSupport(const VkPhysicalDevice& device) const;
+    SwapChainSupportDetails QuerySwapChainSupportDetails(const VkPhysicalDevice& device) const;
+    std::map<FamilyType, uint32_t> GetFamilies(const VkPhysicalDevice& device) const;
+
+    VkPhysicalDevice GetPhysicalDevice() const { return _device; }
+    std::vector<const char*> GetExtensions() const { return _extensions; }
+    VkPhysicalDeviceFeatures GetFeatures(VkPhysicalDevice device) const;
+
+    ~PhysicalDevice() = default;
 
 private:
 

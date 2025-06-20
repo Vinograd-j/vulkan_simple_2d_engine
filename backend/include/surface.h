@@ -19,7 +19,9 @@ public:
 
     explicit Surface(VkInstance instance, GLFWwindow* window);
 
-    VkSurfaceKHR* GetSurface() { return &_surface; }
+    VkSurfaceKHR GetSurface() const { return _surface; }
+
+    ~Surface();
 
 private:
 

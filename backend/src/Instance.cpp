@@ -1,6 +1,6 @@
-#include "../include/instance.h"
+#include "../include/Instance.h"
 
-void instance::CreateInstance()
+void Instance::CreateInstance()
 {
     VkInstanceCreateInfo createInfo {};
 
@@ -15,4 +15,9 @@ void instance::CreateInstance()
 
     if (vkCreateInstance(&createInfo, nullptr, &_instance) != VK_SUCCESS)
         throw std::runtime_error("Failed to create Instance");
+}
+
+Instance::~Instance()
+{
+    vkDestroyInstance(_instance, nullptr);
 }
