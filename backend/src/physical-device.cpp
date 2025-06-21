@@ -2,7 +2,7 @@
 
 #include <set>
 
-void PhysicalDevice::ChoosePhysicalDevice(uint32_t deviceID)
+void PhysicalDevice::ChoosePhysicalDevice(uint32_t deviceID, uint32_t vendorID)
 {
     if (_instance == nullptr)
         throw std::runtime_error("Given instance pointer is null!");
@@ -23,7 +23,7 @@ void PhysicalDevice::ChoosePhysicalDevice(uint32_t deviceID)
         VkPhysicalDeviceProperties properties;
         vkGetPhysicalDeviceProperties(device, &properties);
 
-        if (properties.deviceID == deviceID)
+        if (properties.deviceID == deviceID && properties.vendorID == vendorID)
         {
             if (!IsDeviceSuitable(device))
                 throw std::invalid_argument("provided device is not suitable for this program");

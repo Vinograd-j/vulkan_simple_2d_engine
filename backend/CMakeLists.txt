@@ -1,6 +1,6 @@
 add_library(backend STATIC
-        src/instance.cpp
-        include/instance.h
+        src/Instance.cpp
+        include/Instance.h
         src/vulkan-application.cpp
         include/vulkan-application.h
         include/window.h
@@ -13,8 +13,6 @@ add_library(backend STATIC
         src/logical-device.cpp
         include/allocator.h
         src/allocator.cpp
-        src/validation-layer-messenger.cpp
-        include/validation-layer-messenger.h
         include/queue-family-indices.h
         include/swap-chain-support-details.h
 

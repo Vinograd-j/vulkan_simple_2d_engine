@@ -15,11 +15,9 @@ private:
 
     std::map<FamilyType, VkQueue> _queues;
 
-    VkPhysicalDeviceFeatures _features;
-
 public:
 
-    explicit LogicalDevice(const PhysicalDevice& physicalDevice, const VkPhysicalDeviceFeatures& features);
+    explicit LogicalDevice(const PhysicalDevice& physicalDevice);
 
     ~LogicalDevice();
 

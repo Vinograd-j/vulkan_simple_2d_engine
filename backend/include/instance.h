@@ -37,7 +37,7 @@ public:
 
 public:
 
-    const VkInstance* GetInstance() const { return &_instance; }
+    VkInstance GetInstance() const { return _instance; }
 
     void* GetPNext() const { return _pNext; }
 

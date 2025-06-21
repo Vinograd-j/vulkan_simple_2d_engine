@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <utility>
 #include "vulkan/vulkan_core.h"
 
 class VulkanApplication

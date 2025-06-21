@@ -3,7 +3,7 @@
 #include <set>
 #include <unordered_map>
 
-LogicalDevice::LogicalDevice(const PhysicalDevice& physicalDevice, const VkPhysicalDeviceFeatures& features) : _physicalDevice(physicalDevice), _features(features)
+LogicalDevice::LogicalDevice(const PhysicalDevice& physicalDevice) : _physicalDevice(physicalDevice)
 {
     CreateLogicalDevice();
 }

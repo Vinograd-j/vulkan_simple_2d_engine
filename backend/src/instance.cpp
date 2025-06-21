@@ -1,4 +1,4 @@
-#include "../include/Instance.h"
+#include "../include/instance.h"
 
 void Instance::CreateInstance()
 {

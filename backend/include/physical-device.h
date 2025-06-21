@@ -26,13 +26,12 @@ private:
 
 public:
 
-    explicit PhysicalDevice(const VkInstance& instance, const VkSurfaceKHR& surface, const std::vector<const char*>& requiredExtensions, VkPhysicalDeviceFeatures* requiredFeatures) :
-                                                                                                                                                         _instance(instance),
-                                                                                                                                                         _surface(surface),
-                                                                                                                                                         _extensions(requiredExtensions),
-                                                                                                                                                         _features(requiredFeatures) {}
+    explicit PhysicalDevice(const VkInstance& instance, const VkSurfaceKHR& surface, const std::vector<const char*>& requiredExtensions) :
+                                                                                                                                          _instance(instance),
+                                                                                                                                          _surface(surface),
+                                                                                                                                          _extensions(requiredExtensions){}
 
-    void ChoosePhysicalDevice(uint32_t deviceID);
+    void ChoosePhysicalDevice(uint32_t deviceID, uint32_t vendorID);
 
 
     SwapChainSupportDetails QuerySwapChainSupportDetails(const VkPhysicalDevice& device) const;
