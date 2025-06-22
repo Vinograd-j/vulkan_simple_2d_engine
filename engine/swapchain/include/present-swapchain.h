@@ -10,7 +10,7 @@ public:
 
     explicit PresentSwapchain(const PhysicalDevice& physicalDevice, const LogicalDevice& device, int width, int height, const VkSurfaceKHR& surface);
 
-    ~PresentSwapchain();
+    ~PresentSwapchain() override;
 
     size_t GetImageCount() const override { return _swapchainImages.size(); }
 
@@ -21,6 +21,8 @@ private:
 public:
 
     void CleanupSwapchain() override;
+
+    std::vector<VkImageView> GetImageViews(const VkImageSubresourceRange& subresourceRange, const VkComponentMapping& components) const override;
 
 private:
 

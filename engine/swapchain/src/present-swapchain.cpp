@@ -109,6 +109,27 @@ void PresentSwapchain::CleanupSwapchain()
     vkDestroySwapchainKHR(_device.GetDevice(), _swapchain, nullptr);
 }
 
+std::vector<VkImageView> PresentSwapchain::GetImageViews(const VkImageSubresourceRange& subresourceRange, const VkComponentMapping& components) const
+{
+    std::vector<VkImageView> imageViews(_swapchainImages.size());
+
+    for (int i = 0; i < imageViews.size(); ++i)
+    {
+        VkImageViewCreateInfo createInfo {};
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        createInfo.image = _swapchainImages[i];
+        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        createInfo.format = _surfaceFormat.format;
+        createInfo.components = components;
+        createInfo.subresourceRange = subresourceRange;
+
+        if (vkCreateImageView(_device.GetDevice(), &createInfo, nullptr, &imageViews[i]) != VK_SUCCESS)
+            throw std::runtime_error("failed to create image view");
+    }
+
+    return imageViews;
+}
+
 PresentSwapchain::~PresentSwapchain()
 {
     PresentSwapchain::CleanupSwapchain();

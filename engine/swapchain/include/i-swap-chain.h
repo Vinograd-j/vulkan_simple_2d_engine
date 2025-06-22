@@ -39,6 +39,8 @@ public:
     virtual VkFormat GetImageFormat() const { return _surfaceFormat.format; }
     virtual void CleanupSwapchain() = 0;
 
+    virtual std::vector<VkImageView> GetImageViews(const VkImageSubresourceRange& subresourceRange, const VkComponentMapping& components) const = 0;
+
 private:
 
     virtual void CreateSwapchain() = 0;
