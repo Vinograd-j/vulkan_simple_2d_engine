@@ -20,4 +20,4 @@ add_library(backend STATIC
 
 target_include_directories(backend PUBLIC include)
 
-target_link_libraries(backend PRIVATE Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator glad glfw)
+target_link_libraries(backend PUBLIC Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator glad glfw)

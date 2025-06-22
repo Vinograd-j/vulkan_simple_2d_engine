@@ -32,6 +32,7 @@ add_library(imgui STATIC
 )
 
 add_subdirectory(backend)
+add_subdirectory(engine)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_executable(vulkan-engine WIN32 main.cpp)

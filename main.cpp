@@ -75,6 +75,8 @@ bool CheckValidationLayersSupport()
     return true;
 }
 
+bool debugMode = false;
+
 int main()
 {
     glfwInit();
@@ -84,7 +86,7 @@ int main()
     VulkanApplication application("Vulkan", VK_MAKE_VERSION(1, 0, 0),"No engine", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0, nullptr);
 
     std::unique_ptr<Instance> instance;
-    if (CheckValidationLayersSupport())
+    if (CheckValidationLayersSupport() && debugMode)
     {
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         PopulateDebugUtilsCreateInfo(createInfo, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT, VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT, DebugCallback);
