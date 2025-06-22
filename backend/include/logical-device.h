@@ -21,6 +21,8 @@ public:
 
     ~LogicalDevice();
 
+    VkDevice GetDevice() const { return _device; }
+
 private:
 
     void CreateLogicalDevice();
