@@ -10,6 +10,7 @@
 #include "physical-device.h"
 #include "surface.h"
 #include "window.h"
+#include "engine/swapchain/include/present-swapchain.h"
 
 std::vector<const char*> GetRequiredExtensions()
 {
@@ -24,7 +25,8 @@ std::vector<const char*> GetRequiredExtensions()
 }
 
 const std::vector<const char*> deviceExtensions = {
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUser)
@@ -75,7 +77,7 @@ bool CheckValidationLayersSupport()
     return true;
 }
 
-bool debugMode = false;
+bool debugMode = true;
 
 int main()
 {
@@ -89,7 +91,7 @@ int main()
     if (CheckValidationLayersSupport() && debugMode)
     {
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
-        PopulateDebugUtilsCreateInfo(createInfo, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT, VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT, DebugCallback);
+        PopulateDebugUtilsCreateInfo(createInfo, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT, VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT, DebugCallback);
 
         instance = std::make_unique<Instance>(application, GetRequiredExtensions(), vl, &createInfo, 0);
     }else
@@ -102,18 +104,23 @@ int main()
     Window window(800, 600, "Vulkan");
     window.CreateWindow();
 
-    Surface surface(instance->GetInstance(), window.WindowPointer());
+    std::unique_ptr<Surface> surface = std::make_unique<Surface>(instance->GetInstance(), window.WindowPointer());
 
-    PhysicalDevice device(instance->GetInstance(), surface.GetSurface(), deviceExtensions);
-    device.ChoosePhysicalDevice(7942, 4318);
+    std::unique_ptr<PhysicalDevice> device = std::make_unique<PhysicalDevice>(instance->GetInstance(), surface->GetSurface(), deviceExtensions);
+    device->ChoosePhysicalDevice(7942, 4318);
 
-    LogicalDevice logicalDevice(device);
+    std::unique_ptr<LogicalDevice> logicalDevice = std::make_unique<LogicalDevice>(*device);
+
+    std::unique_ptr<PresentSwapchain> swapchain = std::make_unique<PresentSwapchain>(*device, logicalDevice.get(), 600, 800, surface->GetSurface(), VK_NULL_HANDLE);
 
     while (!glfwWindowShouldClose(window.WindowPointer()))
     {
         glfwPollEvents();
     }
 
+    swapchain.reset();
+    surface.reset();
+    logicalDevice.reset();
 
     return 0;
 }

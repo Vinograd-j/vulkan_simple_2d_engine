@@ -1,0 +1,1 @@
+add_library(file-manager src/file-reader.cpp include/file-reader.h)

@@ -8,7 +8,7 @@ class PresentSwapchain : ISwapchain
 
 public:
 
-    explicit PresentSwapchain(const PhysicalDevice& physicalDevice, const LogicalDevice& device, int width, int height, const VkSurfaceKHR& surface);
+    explicit PresentSwapchain(const PhysicalDevice& physicalDevice, LogicalDevice* device, int width, int height, const VkSurfaceKHR& surface, const VkSwapchainKHR& oldSwapchain);
 
     ~PresentSwapchain() override;
 
@@ -16,7 +16,7 @@ public:
 
 private:
 
-    void CreateSwapchain() override;
+    void CreateSwapchain(const VkSwapchainKHR& oldSwapchain) override;
 
 public:
 

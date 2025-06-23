@@ -60,5 +60,6 @@ void LogicalDevice::CreateLogicalDevice()
 
 LogicalDevice::~LogicalDevice()
 {
-    vkDestroyDevice(_device, nullptr);
+    if (_device != VK_NULL_HANDLE)
+        vkDestroyDevice(_device, nullptr);
 }

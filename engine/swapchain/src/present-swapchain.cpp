@@ -1,12 +1,12 @@
 #include "../include/present-swapchain.h"
 
-PresentSwapchain::PresentSwapchain(const PhysicalDevice& physicalDevice, const LogicalDevice& device, int width, int height, const VkSurfaceKHR& surface) :
-                                                                                                                                                            ISwapchain(physicalDevice, device, width, height, surface)
+PresentSwapchain::PresentSwapchain(const PhysicalDevice& physicalDevice, LogicalDevice* device, int width, int height, const VkSurfaceKHR& surface, const VkSwapchainKHR& oldSwapchain) :
+                                                                                                                                                    ISwapchain(physicalDevice, device, width, height, surface, oldSwapchain)
 {
-    PresentSwapchain::CreateSwapchain();
+    PresentSwapchain::CreateSwapchain(oldSwapchain);
 }
 
-void PresentSwapchain::CreateSwapchain()
+void PresentSwapchain::CreateSwapchain(const VkSwapchainKHR& oldSwapchain)
 {
     ChooseSurfaceFormat();
     ChooseExtent();
@@ -46,14 +46,14 @@ void PresentSwapchain::CreateSwapchain()
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     createInfo.presentMode = _presentMode;
     createInfo.clipped = VK_TRUE;
-    createInfo.oldSwapchain = VK_NULL_HANDLE;
+    createInfo.oldSwapchain = oldSwapchain;
 
-    if (vkCreateSwapchainKHR(_device.GetDevice(), &createInfo, nullptr, &_swapchain) != VK_SUCCESS)
+    if (vkCreateSwapchainKHR(_device->GetDevice(), &createInfo, nullptr, &_swapchain) != VK_SUCCESS)
         throw std::runtime_error("failed to create swapchain");
 
-    vkGetSwapchainImagesKHR(_device.GetDevice(), _swapchain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(_device->GetDevice(), _swapchain, &imageCount, nullptr);
     _swapchainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(_device.GetDevice(), _swapchain, &imageCount, _swapchainImages.data());
+    vkGetSwapchainImagesKHR(_device->GetDevice(), _swapchain, &imageCount, _swapchainImages.data());
 
 }
 
@@ -103,10 +103,7 @@ void PresentSwapchain::ChoosePresentMode()
 
 void PresentSwapchain::CleanupSwapchain()
 {
-    for (const auto& image: _swapchainImages)
-        vkDestroyImage(_device.GetDevice(), image, nullptr);
-
-    vkDestroySwapchainKHR(_device.GetDevice(), _swapchain, nullptr);
+    vkDestroySwapchainKHR(_device->GetDevice(), _swapchain, nullptr);
 }
 
 std::vector<VkImageView> PresentSwapchain::GetImageViews(const VkImageSubresourceRange& subresourceRange, const VkComponentMapping& components) const
@@ -123,7 +120,7 @@ std::vector<VkImageView> PresentSwapchain::GetImageViews(const VkImageSubresourc
         createInfo.components = components;
         createInfo.subresourceRange = subresourceRange;
 
-        if (vkCreateImageView(_device.GetDevice(), &createInfo, nullptr, &imageViews[i]) != VK_SUCCESS)
+        if (vkCreateImageView(_device->GetDevice(), &createInfo, nullptr, &imageViews[i]) != VK_SUCCESS)
             throw std::runtime_error("failed to create image view");
     }
 

@@ -31,6 +31,7 @@ add_library(imgui STATIC
         ${imgui_SOURCE_DIR}/imgui_demo.cpp
 )
 
+add_subdirectory(file-manager)
 add_subdirectory(backend)
 add_subdirectory(engine)
 
@@ -40,7 +41,7 @@ else ()
     add_executable(vulkan-engine main.cpp)
 endif ()
 
-target_link_libraries(vulkan-engine PRIVATE backend glfw Vulkan::Vulkan)
+target_link_libraries(vulkan-engine PRIVATE backend engine glfw Vulkan::Vulkan)
 
 #target_link_libraries(vulkan-engine Vulkan::Vulkan imgui glm::glm GPUOpen::VulkanMemoryAllocator)
 #target_include_directories(vulkan-engine PRIVATE 3rd-party)

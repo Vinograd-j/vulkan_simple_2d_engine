@@ -20,7 +20,7 @@ protected:
 protected:
 
     PhysicalDevice _physicalDevice;
-    LogicalDevice _device;
+    LogicalDevice* _device;
     VkSurfaceKHR _surface;
 
     int _width;
@@ -28,7 +28,7 @@ protected:
 
 public:
 
-    explicit ISwapchain(const PhysicalDevice& physicalDevice, const LogicalDevice& device, int width, int height, const VkSurfaceKHR& surface);
+    explicit ISwapchain(const PhysicalDevice& physicalDevice, LogicalDevice* device, int width, int height, const VkSurfaceKHR& surface, const VkSwapchainKHR& oldSwapchain);
 
     virtual ~ISwapchain() = default;
 
@@ -43,6 +43,6 @@ public:
 
 private:
 
-    virtual void CreateSwapchain() = 0;
+    virtual void CreateSwapchain(const VkSwapchainKHR& oldSwapchain) = 0;
 
 };
