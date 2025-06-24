@@ -3,9 +3,10 @@
 #include <stdexcept>
 
 
-PipelineLayout::PipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSetLayout, const std::vector<VkPushConstantRange>& pushConstants, const VkDevice& device) :
+PipelineLayout::PipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSetLayout, const std::vector<VkPushConstantRange>& pushConstants, LogicalDevice* device) :
                                                                                                                                                         _descriptorSetLayouts(descriptorSetLayout),
-                                                                                                                                                        _pushConstants(pushConstants)
+                                                                                                                                                        _pushConstants(pushConstants),
+                                                                                                                                                        _device(device)
 {
     CreatePipelineLayout();
 }
@@ -19,6 +20,11 @@ void PipelineLayout::CreatePipelineLayout()
     createInfo.pushConstantRangeCount = _pushConstants.size();
     createInfo.pPushConstantRanges = _pushConstants.data();
 
-    if (vkCreatePipelineLayout(_device, &createInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(_device->GetDevice(), &createInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
         throw std::runtime_error("failed to create pipeline layout");
+}
+
+PipelineLayout::~PipelineLayout()
+{
+    vkDestroyPipelineLayout(_device->GetDevice(), _pipelineLayout, nullptr);
 }

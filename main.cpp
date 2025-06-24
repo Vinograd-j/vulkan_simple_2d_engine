@@ -10,6 +10,7 @@
 #include "physical-device.h"
 #include "surface.h"
 #include "window.h"
+#include "engine/pipeline/include/graphics-pipeline.h"
 #include "engine/swapchain/include/present-swapchain.h"
 
 std::vector<const char*> GetRequiredExtensions()
@@ -26,7 +27,9 @@ std::vector<const char*> GetRequiredExtensions()
 
 const std::vector<const char*> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+    VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME,
+    VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME
 };
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUser)
@@ -113,13 +116,24 @@ int main()
 
     std::unique_ptr<PresentSwapchain> swapchain = std::make_unique<PresentSwapchain>(*device, logicalDevice.get(), 600, 800, surface->GetSurface(), VK_NULL_HANDLE);
 
+    std::unique_ptr<PipelineLayout> layout = std::make_unique<PipelineLayout>(std::vector<VkDescriptorSetLayout>(), std::vector<VkPushConstantRange>(), logicalDevice.get());
+
+    std::unique_ptr<ShaderModule> module = std::make_unique<ShaderModule>(logicalDevice.get(), VK_SHADER_STAGE_VERTEX_BIT, "vert");
+    std::vector<ShaderModule*> shaderModules;
+    shaderModules.push_back(module.get());
+
+    std::unique_ptr<GraphicsPipeline> pipeline = std::make_unique<GraphicsPipeline>(shaderModules, layout.get(), logicalDevice.get());
+
     while (!glfwWindowShouldClose(window.WindowPointer()))
     {
         glfwPollEvents();
     }
 
+    pipeline.reset();
+    layout.reset();
     swapchain.reset();
     surface.reset();
+    module.reset();
     logicalDevice.reset();
 
     return 0;

@@ -1,7 +1,7 @@
 #include "../include/present-swapchain.h"
 
 PresentSwapchain::PresentSwapchain(const PhysicalDevice& physicalDevice, LogicalDevice* device, int width, int height, const VkSurfaceKHR& surface, const VkSwapchainKHR& oldSwapchain) :
-                                                                                                                                                    ISwapchain(physicalDevice, device, width, height, surface, oldSwapchain)
+                                                                                                                                                    ISwapchain(physicalDevice, device, width, height, surface)
 {
     PresentSwapchain::CreateSwapchain(oldSwapchain);
 }

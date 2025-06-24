@@ -1,6 +1,6 @@
 #include "../include/shader-module.h"
 
-ShaderModule::ShaderModule(const VkDevice& device, const VkPipelineShaderStageCreateInfo& shaderStage, const std::string& shaderName) : _device(device), _shaderName(shaderName), _shaderStage(shaderStage)
+ShaderModule::ShaderModule(LogicalDevice* device, const VkShaderStageFlagBits& shaderStage, const std::string& shaderName) : _device(device), _shaderName(shaderName), _stage(shaderStage)
 {
     CreateShaderModule();
     CreateShaderStage();
@@ -8,7 +8,7 @@ ShaderModule::ShaderModule(const VkDevice& device, const VkPipelineShaderStageCr
 
 void ShaderModule::CreateShaderModule()
 {
-    auto shaderCode = _fileReader.ReadFromFile(std::string("shaders") + "/" + _shaderName);
+    auto shaderCode = _fileReader.ReadFromFile(std::string("shaders") + "/" + _shaderName + ".spv");
 
     VkShaderModuleCreateInfo createInfo {};
 
@@ -16,7 +16,7 @@ void ShaderModule::CreateShaderModule()
     createInfo.codeSize = shaderCode.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data());
 
-    if (vkCreateShaderModule(_device, &createInfo, nullptr, &_shaderModule) != VK_SUCCESS)
+    if (vkCreateShaderModule(_device->GetDevice(), &createInfo, nullptr, &_shaderModule) != VK_SUCCESS)
         throw std::runtime_error("failed to create shader module");
 }
 
@@ -34,5 +34,5 @@ void ShaderModule::CreateShaderStage()
 
 ShaderModule::~ShaderModule()
 {
-    vkDestroyShaderModule(_device, _shaderModule, nullptr);
+    vkDestroyShaderModule(_device->GetDevice(), _shaderModule, nullptr);
 }

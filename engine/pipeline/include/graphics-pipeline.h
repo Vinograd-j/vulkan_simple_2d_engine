@@ -11,19 +11,17 @@ private:
 
     FileReader _fileReader;
 
-    std::vector<ShaderModule> _shaderModules;
+    std::vector<ShaderModule*> _shaderModules;
 
 public:
 
-    explicit GraphicsPipeline(const std::vector<ShaderModule>& shaderModules, const PipelineLayout& pipelineLayout);
+    explicit GraphicsPipeline(const std::vector<ShaderModule*>& shaderModules, const PipelineLayout* pipelineLayout, LogicalDevice* device);
 
     ~GraphicsPipeline() override;
 
 private:
 
     void CreatePipeline() override;
-
-    VkPipelineVertexInputStateCreateInfo CreateVertexInputInfo() const;
 
     VkPipelineRasterizationStateCreateInfo CreateRasterizer() const;
 

@@ -3,6 +3,8 @@
 #include <vulkan/vulkan_core.h>
 #include <vector>
 
+#include "logical-device.h"
+
 class PipelineLayout
 {
 
@@ -10,7 +12,7 @@ private:
 
     VkPipelineLayout _pipelineLayout {};
 
-    VkDevice _device;
+    LogicalDevice* _device;
 
 private:
 
@@ -20,9 +22,11 @@ private:
 
 public:
 
-    explicit PipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSetLayout, const std::vector<VkPushConstantRange>& pushConstants, const VkDevice& device);
+    explicit PipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSetLayout, const std::vector<VkPushConstantRange>& pushConstants, LogicalDevice* device);
 
     VkPipelineLayout GetPiplineLayout() const { return _pipelineLayout; }
+
+    ~PipelineLayout();
 
 private:
 

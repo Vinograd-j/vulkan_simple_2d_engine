@@ -10,7 +10,9 @@ add_library(engine
         pipeline/include/graphics-pipeline.h
         pipeline/src/shader-module.cpp
         pipeline/include/shader-module.h
-        Vertex.h
+        struct/vertex.h
+        renderer/src/pipeline-renderer.cpp
+        renderer/include/pipeline-renderer.h
 )
 
 target_include_directories(engine PUBLIC include)

@@ -38,9 +38,14 @@ void LogicalDevice::CreateLogicalDevice()
     createInfo.enabledExtensionCount = extensions.size();
     createInfo.ppEnabledExtensionNames = extensions.data();
 
+    VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures {};
+    dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+    dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+
     VkPhysicalDeviceFeatures supportedFeatures{};
     vkGetPhysicalDeviceFeatures(_physicalDevice.GetPhysicalDevice(), &supportedFeatures);
     createInfo.pEnabledFeatures = &supportedFeatures;
+    createInfo.pNext = &dynamicRenderingFeatures;
 
     if (vkCreateDevice(_physicalDevice.GetPhysicalDevice(), &createInfo, nullptr, &_device) != VK_SUCCESS)
         throw std::runtime_error("failed to create logical device");

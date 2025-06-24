@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vulkan/vulkan_core.h>
+
+#include "logical-device.h"
 #include "pipeline-layout.h"
 
 class Pipeline
@@ -10,23 +12,23 @@ protected:
 
     VkPipeline _pipeline {};
 
-    PipelineLayout _pipelineLayout;
+    const PipelineLayout* _pipelineLayout;
 
 protected:
 
-    VkDevice _device;
+    LogicalDevice* _device;
 
 public:
 
-    explicit Pipeline(const PipelineLayout& pipelineLayout);
+    explicit Pipeline(const PipelineLayout* pipelineLayout, LogicalDevice* device) : _pipelineLayout(pipelineLayout), _device(device) {}
 
-    virtual ~Pipeline();
+    virtual ~Pipeline() = default;
 
 public:
 
     VkPipeline GetPipeline() const { return _pipeline; }
 
-    VkPipelineLayout GetPipelineLayout() const { return  _pipelineLayout.GetPiplineLayout(); }
+    VkPipelineLayout GetPipelineLayout() const { return  _pipelineLayout->GetPiplineLayout(); }
 
 private:
 

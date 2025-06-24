@@ -1,6 +1,6 @@
 #include "../include/i-swap-chain.h"
 
-ISwapchain::ISwapchain(const PhysicalDevice& physicalDevice, LogicalDevice* device, int width, int height, const VkSurfaceKHR& surface, const VkSwapchainKHR& oldSwapchain) :
+ISwapchain::ISwapchain(const PhysicalDevice& physicalDevice, const LogicalDevice* device, int width, int height, const VkSurfaceKHR& surface) :
                                                                                                                                             _physicalDevice(physicalDevice),
                                                                                                                                             _device(device),
                                                                                                                                             _width(width),

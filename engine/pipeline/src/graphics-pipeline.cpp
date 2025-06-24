@@ -1,8 +1,8 @@
 #include "../include/graphics-pipeline.h"
 
-#include "../../vertex.h"
+#include "../../struct/vertex.h"
 
-GraphicsPipeline::GraphicsPipeline(const std::vector<ShaderModule>& shaderModules, const PipelineLayout& pipelineLayout) : Pipeline(pipelineLayout), _shaderModules(shaderModules)
+GraphicsPipeline::GraphicsPipeline(const std::vector<ShaderModule*>& shaderModules, const PipelineLayout* pipelineLayout, LogicalDevice* device) : Pipeline(pipelineLayout, device), _shaderModules(shaderModules)
 {
     GraphicsPipeline::CreatePipeline();
 }
@@ -12,7 +12,7 @@ void GraphicsPipeline::CreatePipeline()
     std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 
     for (int i = 0; i < _shaderModules.size(); ++i)
-        shaderStages.push_back(_shaderModules[i].GetShaderStage());
+        shaderStages.push_back(_shaderModules[i]->GetShaderStage());
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo {};
 
@@ -38,6 +38,7 @@ void GraphicsPipeline::CreatePipeline()
 
     VkPipelineDynamicStateCreateInfo dynamicState {};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    dynamicState.dynamicStateCount = dynamicStates.size();
     dynamicState.pDynamicStates = dynamicStates.data();
 
     VkPipelineViewportStateCreateInfo viewportState {};
@@ -53,6 +54,16 @@ void GraphicsPipeline::CreatePipeline()
 
     VkPipelineColorBlendStateCreateInfo colorBlending = SetupColorBlending(colorBlendAttachment);
 
+    // JUST FOR CHECK
+    VkFormat colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
+    VkPipelineRenderingCreateInfo rendering {};
+    rendering.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+    rendering.colorAttachmentCount = 1;
+    rendering.pColorAttachmentFormats = &colorFormat;
+    rendering.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
+    rendering.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
+    // JUST FOR CHECK
+
     VkGraphicsPipelineCreateInfo createInfo {};
     createInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     createInfo.stageCount = shaderStages.size();
@@ -65,11 +76,15 @@ void GraphicsPipeline::CreatePipeline()
     createInfo.pColorBlendState = &colorBlending;
     createInfo.pDynamicState = &dynamicState;
     createInfo.pRasterizationState = &rasterizer;
-    createInfo.layout = _pipelineLayout.GetPiplineLayout();
+    createInfo.layout = _pipelineLayout->GetPiplineLayout();
     createInfo.renderPass = VK_NULL_HANDLE;
     createInfo.subpass = 0;
 
-    if (vkCreateGraphicsPipelines(_device, VK_NULL_HANDLE, 1, &createInfo, nullptr, &_pipeline) != VK_SUCCESS)
+    // JUST FOR CHECK
+    createInfo.pNext = &rendering;
+    // JUST FOR CHECK
+
+    if (vkCreateGraphicsPipelines(_device->GetDevice(), VK_NULL_HANDLE, 1, &createInfo, nullptr, &_pipeline) != VK_SUCCESS)
         throw std::runtime_error("failed to create graphics pipeline");
 }
 
@@ -124,5 +139,5 @@ VkPipelineColorBlendStateCreateInfo GraphicsPipeline::SetupColorBlending(const V
 
 GraphicsPipeline::~GraphicsPipeline()
 {
-    vkDestroyPipeline(_device, _pipeline, nullptr);
+    vkDestroyPipeline(_device->GetDevice(), _pipeline, nullptr);
 }
