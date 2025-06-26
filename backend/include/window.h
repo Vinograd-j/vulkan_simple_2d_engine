@@ -25,7 +25,7 @@ public:
 
     void CreateWindow();
 
-    GLFWwindow* WindowPointer() { return _window; }
+    GLFWwindow* WindowPointer() const { return _window; }
 
     ~Window();
 

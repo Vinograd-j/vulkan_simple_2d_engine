@@ -136,7 +136,6 @@ VkPipelineColorBlendStateCreateInfo GraphicsPipeline::SetupColorBlending(const V
     return colorBlending;
 }
 
-
 GraphicsPipeline::~GraphicsPipeline()
 {
     vkDestroyPipeline(_device->GetDevice(), _pipeline, nullptr);

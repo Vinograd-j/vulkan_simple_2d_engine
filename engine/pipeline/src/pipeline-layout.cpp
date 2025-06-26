@@ -4,9 +4,9 @@
 
 
 PipelineLayout::PipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSetLayout, const std::vector<VkPushConstantRange>& pushConstants, LogicalDevice* device) :
+                                                                                                                                                        _device(device),
                                                                                                                                                         _descriptorSetLayouts(descriptorSetLayout),
-                                                                                                                                                        _pushConstants(pushConstants),
-                                                                                                                                                        _device(device)
+                                                                                                                                                        _pushConstants(pushConstants)
 {
     CreatePipelineLayout();
 }

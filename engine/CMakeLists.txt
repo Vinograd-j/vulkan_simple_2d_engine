@@ -13,6 +13,10 @@ add_library(engine
         struct/vertex.h
         renderer/src/pipeline-renderer.cpp
         renderer/include/pipeline-renderer.h
+        descriptors/src/descriptor-set-layout.cpp
+        descriptors/include/descriptor-set-layout.h
+        descriptors/src/descriptor-sets.cpp
+        descriptors/include/descriptor-sets.h
 )
 
 target_include_directories(engine PUBLIC include)
