@@ -35,8 +35,9 @@ public:
 public:
 
     virtual size_t GetImageCount() const = 0;
-    virtual VkExtent2D GetExtent() const { return _extent; }
-    virtual VkFormat GetImageFormat() const { return _surfaceFormat.format; }
+    virtual VkExtent2D GetExtent() const = 0;
+    virtual VkFormat GetImageFormat() const = 0;
+    virtual std::vector<VkImage>  GetSwapchainImages() const = 0;
     virtual void CleanupSwapchain() = 0;
 
     virtual std::vector<VkImageView> GetImageViews(const VkImageSubresourceRange& subresourceRange, const VkComponentMapping& components) const = 0;

@@ -24,6 +24,14 @@ public:
 
     std::vector<VkImageView> GetImageViews(const VkImageSubresourceRange& subresourceRange, const VkComponentMapping& components) const override;
 
+    std::vector<VkImage> GetSwapchainImages() const override { return _swapchainImages; }
+
+    VkSwapchainKHR GetSwapchain() const { return _swapchain; }
+
+    VkExtent2D GetExtent() const override { return _extent; };
+
+    VkFormat GetImageFormat() const override { return _surfaceFormat.format; }
+
 private:
 
     void ChooseExtent();

@@ -16,15 +16,15 @@ void GraphicsPipeline::CreatePipeline()
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo {};
 
-    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-
-    auto bindingDescription = Vertex::GetBindingDescription();
-    auto attributeDescriptions = Vertex::GetAttributeDescriptions();
-
-    vertexInputInfo.vertexBindingDescriptionCount = 1;
-    vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
-    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    //
+    // // auto bindingDescription = Vertex::GetBindingDescription();
+    // // auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+    //
+     vertexInputInfo.vertexBindingDescriptionCount = 0;
+    // vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
+    // vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    // vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly {};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -54,15 +54,13 @@ void GraphicsPipeline::CreatePipeline()
 
     VkPipelineColorBlendStateCreateInfo colorBlending = SetupColorBlending(colorBlendAttachment);
 
-    // JUST FOR CHECK
-    VkFormat colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
+    VkFormat colorFormat = VK_FORMAT_B8G8R8A8_SRGB;
     VkPipelineRenderingCreateInfo rendering {};
     rendering.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
     rendering.colorAttachmentCount = 1;
     rendering.pColorAttachmentFormats = &colorFormat;
     rendering.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
     rendering.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
-    // JUST FOR CHECK
 
     VkGraphicsPipelineCreateInfo createInfo {};
     createInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -77,12 +75,9 @@ void GraphicsPipeline::CreatePipeline()
     createInfo.pDynamicState = &dynamicState;
     createInfo.pRasterizationState = &rasterizer;
     createInfo.layout = _pipelineLayout->GetPiplineLayout();
-    createInfo.renderPass = VK_NULL_HANDLE;
+    createInfo.renderPass = nullptr;
     createInfo.subpass = 0;
-
-    // JUST FOR CHECK
     createInfo.pNext = &rendering;
-    // JUST FOR CHECK
 
     if (vkCreateGraphicsPipelines(_device->GetDevice(), VK_NULL_HANDLE, 1, &createInfo, nullptr, &_pipeline) != VK_SUCCESS)
         throw std::runtime_error("failed to create graphics pipeline");
@@ -98,8 +93,8 @@ VkPipelineRasterizationStateCreateInfo GraphicsPipeline::CreateRasterizer() cons
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizer.cullMode = VK_CULL_MODE_NONE;
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
     rasterizer.depthBiasClamp = VK_FALSE;
 
     return rasterizer;

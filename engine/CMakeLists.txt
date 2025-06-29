@@ -11,12 +11,16 @@ add_library(engine
         pipeline/src/shader-module.cpp
         pipeline/include/shader-module.h
         struct/vertex.h
-        renderer/src/pipeline-renderer.cpp
-        renderer/include/pipeline-renderer.h
         descriptors/src/descriptor-set-layout.cpp
         descriptors/include/descriptor-set-layout.h
         descriptors/src/descriptor-sets.cpp
         descriptors/include/descriptor-sets.h
+        renderer/src/renderer.cpp
+        renderer/include/renderer.h
+        renderer/command-buffer/src/command-buffers.cpp
+        renderer/command-buffer/include/command-buffers.h
+        renderer/command-buffer/src/command-pool.cpp
+        renderer/command-buffer/include/command-pool.h
 )
 
 target_include_directories(engine PUBLIC include)

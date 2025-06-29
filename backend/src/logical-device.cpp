@@ -42,7 +42,7 @@ void LogicalDevice::CreateLogicalDevice()
     dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
     dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
 
-    VkPhysicalDeviceFeatures supportedFeatures{};
+    VkPhysicalDeviceFeatures supportedFeatures {};
     vkGetPhysicalDeviceFeatures(_physicalDevice.GetPhysicalDevice(), &supportedFeatures);
     createInfo.pEnabledFeatures = &supportedFeatures;
     createInfo.pNext = &dynamicRenderingFeatures;

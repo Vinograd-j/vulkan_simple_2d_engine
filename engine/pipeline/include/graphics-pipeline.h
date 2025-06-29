@@ -19,6 +19,8 @@ public:
 
     ~GraphicsPipeline() override;
 
+    VkPipeline GetPipeline() const override { return _pipeline; }
+
 private:
 
     void CreatePipeline() override;
