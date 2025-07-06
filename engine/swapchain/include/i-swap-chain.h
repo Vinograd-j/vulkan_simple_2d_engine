@@ -1,6 +1,7 @@
 #pragma once
 #include "logical-device.h"
 #include "swap-chain-support-details.h"
+#include "window.h"
 
 class ISwapchain
 {
@@ -23,12 +24,15 @@ protected:
     const LogicalDevice* _device;
     VkSurfaceKHR _surface;
 
-    int _width;
-    int _height;
+    GLFWwindow* _window;
 
 public:
 
-    explicit ISwapchain(const PhysicalDevice& physicalDevice, const LogicalDevice* device, int width, int height, const VkSurfaceKHR& surface);
+    explicit ISwapchain(const PhysicalDevice& physicalDevice, const LogicalDevice* device, GLFWwindow* window, const VkSurfaceKHR& surface) :
+                                                                                                                                             _physicalDevice(physicalDevice),
+                                                                                                                                             _device(device),
+                                                                                                                                             _surface(surface),
+                                                                                                                                             _window(window) {}
 
     virtual ~ISwapchain() = default;
 

@@ -89,7 +89,7 @@ int main()
 {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    //glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     VulkanApplication application("Vulkan", VK_MAKE_VERSION(1, 0, 0),"No engine", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_3, nullptr);
 
@@ -117,7 +117,7 @@ int main()
 
     std::unique_ptr<LogicalDevice> logicalDevice = std::make_unique<LogicalDevice>(*device);
 
-    std::unique_ptr<PresentSwapchain> swapchain = std::make_unique<PresentSwapchain>(*device, logicalDevice.get(), 600, 800, surface->GetSurface(), VK_NULL_HANDLE);
+    std::unique_ptr<PresentSwapchain> swapchain = std::make_unique<PresentSwapchain>(*device, logicalDevice.get(), window.WindowPointer(), surface->GetSurface(), VK_NULL_HANDLE);
 
     std::unique_ptr<PipelineLayout> layout = std::make_unique<PipelineLayout>(std::vector<VkDescriptorSetLayout>(), std::vector<VkPushConstantRange>(), logicalDevice.get());
 

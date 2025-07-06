@@ -1,13 +1,17 @@
 #include "../include/present-swapchain.h"
 
-PresentSwapchain::PresentSwapchain(const PhysicalDevice& physicalDevice, LogicalDevice* device, int width, int height, const VkSurfaceKHR& surface, const VkSwapchainKHR& oldSwapchain) :
-                                                                                                                                                    ISwapchain(physicalDevice, device, width, height, surface)
+#include <GLFW/glfw3.h>
+
+PresentSwapchain::PresentSwapchain(const PhysicalDevice& physicalDevice, LogicalDevice* device, GLFWwindow* window, const VkSurfaceKHR& surface, const VkSwapchainKHR& oldSwapchain) :
+                                                                                                                                                    ISwapchain(physicalDevice, device, window, surface)
 {
     PresentSwapchain::CreateSwapchain(oldSwapchain);
 }
 
 void PresentSwapchain::CreateSwapchain(const VkSwapchainKHR& oldSwapchain)
 {
+    _swapChainSupportDetails = _physicalDevice.QuerySwapChainSupportDetails(_physicalDevice.GetPhysicalDevice());
+
     ChooseSurfaceFormat();
     ChooseExtent();
     ChoosePresentMode();
@@ -57,20 +61,42 @@ void PresentSwapchain::CreateSwapchain(const VkSwapchainKHR& oldSwapchain)
 
 }
 
+void PresentSwapchain::Recreate()
+{
+    int width, height = 0;
+    glfwGetFramebufferSize(_window, &width, &height);
+    while (width == 0 || height == 0)
+    {
+        glfwGetFramebufferSize(_window, &width, &height);
+        glfwWaitEvents();
+    }
+
+    vkDeviceWaitIdle(_device->GetDevice());
+
+    CleanupSwapchain();
+    CreateSwapchain(VK_NULL_HANDLE);
+}
+
 void PresentSwapchain::ChooseExtent()
 {
     if (_swapChainSupportDetails._capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
         _extent = _swapChainSupportDetails._capabilities.currentExtent;
+    else
+    {
+        int width, height;
+        glfwGetFramebufferSize(_window, &width, &height);
 
-    VkExtent2D actualExtent = {
-        static_cast<uint32_t>(_width),
-        static_cast<uint32_t>(_height)
-    };
+        VkExtent2D actualExtent = {
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height)
+        };
 
-    actualExtent.width = std::clamp(actualExtent.width, _swapChainSupportDetails._capabilities.minImageExtent.width, _swapChainSupportDetails._capabilities.maxImageExtent.width);
-    actualExtent.height = std::clamp(actualExtent.height, _swapChainSupportDetails._capabilities.minImageExtent.height, _swapChainSupportDetails._capabilities.maxImageExtent.height);
+        actualExtent.width = std::clamp(actualExtent.width, _swapChainSupportDetails._capabilities.minImageExtent.width, _swapChainSupportDetails._capabilities.maxImageExtent.width);
+        actualExtent.height = std::clamp(actualExtent.height, _swapChainSupportDetails._capabilities.minImageExtent.height, _swapChainSupportDetails._capabilities.maxImageExtent.height);
 
-    _extent = actualExtent;
+        _extent = actualExtent;
+    }
+
 }
 
 void PresentSwapchain::ChooseSurfaceFormat()

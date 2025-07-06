@@ -1,6 +1,6 @@
 #include "../include/renderer.h"
 
-Renderer::Renderer(const CommandBuffers& command_buffers, const GraphicsPipeline* pipeline, const PresentSwapchain* swapchain, const LogicalDevice* device, VkQueue graphics, VkQueue present, const Allocator* allocator)  :
+Renderer::Renderer(const CommandBuffers& command_buffers, const GraphicsPipeline* pipeline, PresentSwapchain* swapchain, const LogicalDevice* device, VkQueue graphics, VkQueue present, const Allocator* allocator)  :
                                                                                                                                                           _commandBuffers(command_buffers),
                                                                                                                                                           _pipeline(pipeline),
                                                                                                                                                           _swapchain(swapchain),
@@ -13,18 +13,8 @@ Renderer::Renderer(const CommandBuffers& command_buffers, const GraphicsPipeline
     CreateBuffers();
     CreateSyncObjects();
 
-    VkComponentMapping mapping {};
-    mapping.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-    mapping.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-    mapping.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-    mapping.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-    VkImageSubresourceRange subresourceRange {};
-    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    subresourceRange.baseMipLevel = 0;
-    subresourceRange.levelCount = 1;
-    subresourceRange.baseArrayLayer = 0;
-    subresourceRange.layerCount = 1;
+    auto subresourceRange = GetImageSubresourceRange();
+    auto mapping = GetComponentMapping();
 
     _imageViews = _swapchain->GetImageViews(subresourceRange, mapping);
 
@@ -37,6 +27,15 @@ void Renderer::DrawFrame()
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(_device->GetDevice(), _swapchain->GetSwapchain(), UINT64_MAX, _imageAvailableSemaphores[_currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    {
+        RecreateSwapchain();
+        return;
+    }else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    {
+        throw std::runtime_error("failed to acquire swap chain image");
+    }
 
     vkResetFences(_device->GetDevice(), 1, &_inFlightFences[_currentFrame]);
 
@@ -74,15 +73,14 @@ void Renderer::DrawFrame()
 
     result = vkQueuePresentKHR(_presentQueue, &presentInfo);
 
-    // if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || _framebufferResized)
-    // {
-    //     _framebufferResized = false;
-    //     RecreateSwapChain();
-    //     return;
-    // }else if (result != VK_SUCCESS)
-    // {
-    //     throw std::runtime_error("failed to acquire swap chain image");
-    // }
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+    {
+        RecreateSwapchain();
+        return;
+    }else if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to acquire swap chain image");
+    }
 
     _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
@@ -172,7 +170,7 @@ void Renderer::RecordCommandBuffer(VkCommandBuffer buffer, VkImageView imageView
 
     VkImageMemoryBarrier barrierToPresent{};
     barrierToPresent.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    barrierToRender.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    barrierToPresent.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     barrierToPresent.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     barrierToPresent.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrierToPresent.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -264,6 +262,46 @@ void Renderer::CreateSyncObjects()
             throw std::runtime_error("failed to create semaphore or fence for a frame");
         }
     }
+}
+
+VkImageSubresourceRange Renderer::GetImageSubresourceRange() const
+{
+    VkImageSubresourceRange subresourceRange {};
+    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    subresourceRange.baseMipLevel = 0;
+    subresourceRange.levelCount = 1;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.layerCount = 1;
+
+    return subresourceRange;
+}
+
+VkComponentMapping Renderer::GetComponentMapping() const
+{
+    VkComponentMapping mapping {};
+    mapping.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    mapping.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    mapping.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    mapping.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+    return mapping;
+}
+
+void Renderer::RecreateSwapchain()
+{
+    _swapchain->Recreate();
+
+    auto subresourceRange = GetImageSubresourceRange();
+    auto mapping = GetComponentMapping();
+
+    for (auto imageView : _imageViews)
+        vkDestroyImageView(_device->GetDevice(), imageView, nullptr);
+
+    _imageViews = _swapchain->GetImageViews(subresourceRange, mapping);
+
+    _swapchainImageLayouts.clear();
+    _swapchainImageLayouts.resize(_imageViews.size(), VK_IMAGE_LAYOUT_UNDEFINED);
+
 }
 
 Renderer::~Renderer()

@@ -1,7 +1,6 @@
 add_library(engine
         swapchain/src/present-swapchain.cpp
         swapchain/include/present-swapchain.h
-        swapchain/src/i-swap-chain.cpp
         swapchain/include/i-swap-chain.h
         pipeline/include/pipeline.h
         pipeline/src/pipeline-layout.cpp

@@ -8,7 +8,7 @@ class PresentSwapchain : ISwapchain
 
 public:
 
-    explicit PresentSwapchain(const PhysicalDevice& physicalDevice, LogicalDevice* device, int width, int height, const VkSurfaceKHR& surface, const VkSwapchainKHR& oldSwapchain);
+    explicit PresentSwapchain(const PhysicalDevice& physicalDevice, LogicalDevice* device, GLFWwindow* window, const VkSurfaceKHR& surface, const VkSwapchainKHR& oldSwapchain);
 
     ~PresentSwapchain() override;
 
@@ -31,6 +31,8 @@ public:
     VkExtent2D GetExtent() const override { return _extent; };
 
     VkFormat GetImageFormat() const override { return _surfaceFormat.format; }
+
+    void Recreate();
 
 private:
 

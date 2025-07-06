@@ -14,7 +14,7 @@ private:
 
     const GraphicsPipeline* _pipeline;
 
-    const PresentSwapchain* _swapchain;
+    PresentSwapchain* _swapchain;
 
     std::vector<VkFence> _inFlightFences;
     std::vector<VkSemaphore> _renderingFinishedSemaphores;
@@ -53,7 +53,7 @@ private:
 
 public:
 
-    explicit Renderer(const CommandBuffers& command_buffers, const GraphicsPipeline* pipeline, const PresentSwapchain* swapchain, const LogicalDevice* device, VkQueue graphics, VkQueue present, const Allocator* allocator);
+    explicit Renderer(const CommandBuffers& command_buffers, const GraphicsPipeline* pipeline, PresentSwapchain* swapchain, const LogicalDevice* device, VkQueue graphics, VkQueue present, const Allocator* allocator);
 
     void DrawFrame();
 
@@ -66,5 +66,11 @@ private:
     void RecordCommandBuffer(VkCommandBuffer buffer, VkImageView imageView, uint32_t imageIndex);
 
     void CreateBuffers();
+
+    VkImageSubresourceRange GetImageSubresourceRange() const;
+
+    VkComponentMapping GetComponentMapping() const;
+
+    void RecreateSwapchain();
 
 };
