@@ -1,5 +1,7 @@
 #pragma once
 
+#include "instance.h"
+#include "logical-device.h"
 #include "vk_mem_alloc.h"
 
 class Allocator
@@ -11,19 +13,23 @@ private:
 
 private:
 
-    VkPhysicalDevice _device;
+    const PhysicalDevice* _physicalDevice;
+    const LogicalDevice* _device;
 
-    VkInstance _instance;
+    const Instance* _instance;
 
 public:
 
-    explicit Allocator(const VkPhysicalDevice& device, const VkInstance& instance);
+    explicit Allocator(const PhysicalDevice* physicalDevice, const LogicalDevice* device, const Instance* instance);
+
+    VmaAllocator GetAllocator() const { return _allocator; }
 
     ~Allocator();
 
 public:
 
-    void CreateBuffer(const VkBufferCreateInfo& createInfo, VmaAllocationCreateInfo& allocationInfo, VkBuffer* buffer, VmaAllocation* memory) const;
+    void CreateBuffer(const VkBufferCreateInfo& createInfo, VmaAllocationCreateInfo& allocationInfo, VkBuffer* buffer, VmaAllocation* memory, VmaAllocationInfo
+                      * allocInfo) const;
 
     void CreateImage(const VkImageCreateInfo& createInfo, VmaAllocationCreateInfo& allocationInfo, VkImage* image, VmaAllocation* memory) const;
 

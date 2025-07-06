@@ -27,15 +27,19 @@ private:
     const int MAX_FRAMES_IN_FLIGHT = 2;
     uint32_t _currentFrame = 0;
 
-    //Allocator _allocator;
+    const Allocator* _allocator;
 
     VkBuffer _vertexBuffer;
+    VmaAllocation _vertexBufferMemory;
+
     VkBuffer _indexBuffer;
+    VmaAllocation _indexBufferMemory;
 
     const std::vector<Vertex> vertices = {
-        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-        {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+        {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+        {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+        {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+        {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
     };
 
     const std::vector<uint16_t> indices = {
@@ -49,7 +53,7 @@ private:
 
 public:
 
-    explicit Renderer(const CommandBuffers& command_buffers, const GraphicsPipeline* pipeline, const PresentSwapchain* swapchain, const LogicalDevice* device, VkQueue graphics, VkQueue present);
+    explicit Renderer(const CommandBuffers& command_buffers, const GraphicsPipeline* pipeline, const PresentSwapchain* swapchain, const LogicalDevice* device, VkQueue graphics, VkQueue present, const Allocator* allocator);
 
     void DrawFrame();
 
@@ -61,6 +65,6 @@ private:
 
     void RecordCommandBuffer(VkCommandBuffer buffer, VkImageView imageView, uint32_t imageIndex);
 
-    //void CreateBuffers();
+    void CreateBuffers();
 
 };

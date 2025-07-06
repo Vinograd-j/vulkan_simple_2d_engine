@@ -1,15 +1,17 @@
+#define VMA_IMPLEMENTATION
+
 #include "../include/allocator.h"
 
 #include <stdexcept>
 
-Allocator::Allocator(const VkPhysicalDevice& device, const VkInstance& instance) : _device(device), _instance(instance)
+Allocator::Allocator(const PhysicalDevice* physicalDevice, const LogicalDevice* device, const Instance* instance) : _physicalDevice(physicalDevice), _instance(instance), _device(device)
 {
     CreateAllocator();
 }
 
-void Allocator::CreateBuffer(const VkBufferCreateInfo& createInfo, VmaAllocationCreateInfo& allocationInfo, VkBuffer* buffer, VmaAllocation* memory) const
+void Allocator::CreateBuffer(const VkBufferCreateInfo& createInfo, VmaAllocationCreateInfo& allocationInfo, VkBuffer* buffer, VmaAllocation* memory, VmaAllocationInfo* allocInfo) const
 {
-    vmaCreateBuffer(_allocator, &createInfo, &allocationInfo, buffer, memory, nullptr);
+    vmaCreateBuffer(_allocator, &createInfo, &allocationInfo, buffer, memory, allocInfo);
 }
 
 void Allocator::CreateImage(const VkImageCreateInfo& createInfo, VmaAllocationCreateInfo& allocationInfo, VkImage* image, VmaAllocation* memory) const
@@ -26,8 +28,9 @@ void Allocator::CreateAllocator()
     VmaAllocatorCreateInfo createInfo {};
     createInfo.flags = VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
     createInfo.vulkanApiVersion = VK_API_VERSION_1_3;
-    createInfo.physicalDevice = _device;
-    createInfo.instance = _instance;
+    createInfo.physicalDevice = _physicalDevice->GetPhysicalDevice();
+    createInfo.device = _device->GetDevice();
+    createInfo.instance = _instance->GetInstance();
     createInfo.pVulkanFunctions = &vulkanFunctions;
 
     if (vmaCreateAllocator(&createInfo, &_allocator) != VK_SUCCESS)

@@ -17,14 +17,14 @@ void GraphicsPipeline::CreatePipeline()
     VkPipelineVertexInputStateCreateInfo vertexInputInfo {};
 
      vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    //
-    // // auto bindingDescription = Vertex::GetBindingDescription();
-    // // auto attributeDescriptions = Vertex::GetAttributeDescriptions();
-    //
-     vertexInputInfo.vertexBindingDescriptionCount = 0;
-    // vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
-    // vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-    // vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+
+    auto bindingDescription = Vertex::GetBindingDescription();
+    auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
+    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly {};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;

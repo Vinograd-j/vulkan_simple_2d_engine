@@ -14,6 +14,7 @@
 #include "engine/renderer/command-buffer/include/command-pool.h"
 #include "engine/renderer/include/renderer.h"
 #include "engine/swapchain/include/present-swapchain.h"
+#include "allocator.h"
 
 std::vector<const char*> GetRequiredExtensions()
 {
@@ -138,7 +139,8 @@ int main()
     VkQueue present;
     vkGetDeviceQueue(logicalDevice.get()->GetDevice(), device.get()->GetFamilies(device.get()->GetPhysicalDevice()).at(PRESENT), 0, &present);
 
-    std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>(*commandBuffers.get(), pipeline.get(), swapchain.get(), logicalDevice.get(), graphics, present);
+    std::unique_ptr<Allocator> allocator = std::make_unique<Allocator>(device.get(), logicalDevice.get(), instance.get());
+    std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>(*commandBuffers.get(), pipeline.get(), swapchain.get(), logicalDevice.get(), graphics, present, allocator.get());
 
     while (!glfwWindowShouldClose(window.WindowPointer()))
     {
@@ -151,6 +153,7 @@ int main()
     pool.reset();
     commandBuffers.reset();
     renderer.reset();
+    allocator.reset();
     pipeline.reset();
     layout.reset();
     swapchain.reset();

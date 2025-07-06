@@ -1,12 +1,16 @@
 #include "../include/renderer.h"
 
-Renderer::Renderer(const CommandBuffers& command_buffers, const GraphicsPipeline* pipeline, const PresentSwapchain* swapchain, const LogicalDevice* device, VkQueue graphics, VkQueue present)  : _commandBuffers(command_buffers),
+Renderer::Renderer(const CommandBuffers& command_buffers, const GraphicsPipeline* pipeline, const PresentSwapchain* swapchain, const LogicalDevice* device, VkQueue graphics, VkQueue present, const Allocator* allocator)  :
+                                                                                                                                                          _commandBuffers(command_buffers),
                                                                                                                                                           _pipeline(pipeline),
                                                                                                                                                           _swapchain(swapchain),
                                                                                                                                                           _device(device),
                                                                                                                                                           _graphicsQueue(graphics),
-                                                                                                                                                          _presentQueue(present)
+                                                                                                                                                          _presentQueue(present),
+                                                                                                                                                          _allocator(allocator)
+
 {
+    CreateBuffers();
     CreateSyncObjects();
 
     VkComponentMapping mapping {};
@@ -157,7 +161,12 @@ void Renderer::RecordCommandBuffer(VkCommandBuffer buffer, VkImageView imageView
 
     vkCmdBeginRendering(buffer, &renderingInfo);
 
-    vkCmdDraw(buffer, 3, 1, 0, 0);
+    VkBuffer vertexBuffers[] = {_vertexBuffer};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers, offsets);
+    vkCmdBindIndexBuffer(buffer, _indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+    vkCmdDrawIndexed(buffer, indices.size(), 1, 0, 0, 0);
 
     vkCmdEndRendering(buffer);
 
@@ -193,14 +202,45 @@ void Renderer::RecordCommandBuffer(VkCommandBuffer buffer, VkImageView imageView
     vkEndCommandBuffer(buffer);
 }
 
-// void Renderer::CreateBuffers()
-// {
-//     VkDeviceSize vertexBufferSize = sizeof(vertices[0]) * vertices.size();
-//     VmaAllocationInfo vertexInfo {};
-//     vertexInfo.size = vertexBufferSize;
-//     vertexInfo.
-//     _allocator.CreateBuffer()
-// }
+void Renderer::CreateBuffers()
+{
+    VkDeviceSize vertexBufferSize = sizeof(vertices[0]) * vertices.size();
+
+    VkBufferCreateInfo vertexBufferInfo{};
+    vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    vertexBufferInfo.size = vertexBufferSize;
+    vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    vertexBufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VmaAllocationCreateInfo allocInfo{};
+    allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+    allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+                      VMA_ALLOCATION_CREATE_MAPPED_BIT;
+
+    VmaAllocationInfo allocationInfo{};
+    _allocator->CreateBuffer(vertexBufferInfo, allocInfo, &_vertexBuffer, &_vertexBufferMemory, &allocationInfo);
+
+    std::memcpy(allocationInfo.pMappedData, vertices.data(), static_cast<size_t>(vertexBufferSize));
+
+
+    VkDeviceSize indexBufferSize = sizeof(indices[0]) * indices.size();
+
+    VkBufferCreateInfo indexBufferInfo{};
+    indexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    indexBufferInfo.size = indexBufferSize;
+    indexBufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+    indexBufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VmaAllocationCreateInfo indexAllocCreateInfo{};
+    indexAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+    indexAllocCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+                                  VMA_ALLOCATION_CREATE_MAPPED_BIT;
+
+    VmaAllocationInfo indexAllocInfo{};
+    _allocator->CreateBuffer(indexBufferInfo, indexAllocCreateInfo, &_indexBuffer, &_indexBufferMemory, &indexAllocInfo);
+
+    std::memcpy(indexAllocInfo.pMappedData, indices.data(), indexBufferSize);
+}
 
 void Renderer::CreateSyncObjects()
 {
@@ -228,6 +268,9 @@ void Renderer::CreateSyncObjects()
 
 Renderer::~Renderer()
 {
+    vmaDestroyBuffer(_allocator->GetAllocator(), _vertexBuffer, _vertexBufferMemory);
+    vmaDestroyBuffer(_allocator->GetAllocator(), _indexBuffer, _indexBufferMemory);
+
     for (auto imageView : _imageViews)
         vkDestroyImageView(_device->GetDevice(), imageView, nullptr);
 

@@ -15,7 +15,6 @@ add_library(backend STATIC
         src/allocator.cpp
         include/queue-family-indices.h
         include/swap-chain-support-details.h
-
 )
 
 target_include_directories(backend PUBLIC include)
