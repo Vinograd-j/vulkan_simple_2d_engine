@@ -12,7 +12,7 @@ protected:
 
     VkPipeline _pipeline {};
 
-    const PipelineLayout* _pipelineLayout;
+    const PipelineLayout* const _pipelineLayout;
 
 protected:
 

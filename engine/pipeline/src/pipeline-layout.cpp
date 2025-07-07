@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-PipelineLayout::PipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSetLayout, const std::vector<VkPushConstantRange>& pushConstants, LogicalDevice* device) :
+PipelineLayout::PipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSetLayout, const std::vector<VkPushConstantRange>& pushConstants, const LogicalDevice* device) :
                                                                                                                                                         _device(device),
                                                                                                                                                         _descriptorSetLayouts(descriptorSetLayout),
                                                                                                                                                         _pushConstants(pushConstants)

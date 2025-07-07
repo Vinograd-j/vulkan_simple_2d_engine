@@ -10,7 +10,7 @@ private:
 
     VkCommandPool _pool {};
 
-    const LogicalDevice* _device;
+    const LogicalDevice* const _device;
 
 public:
 

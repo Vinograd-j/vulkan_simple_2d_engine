@@ -1,16 +1,17 @@
 #include "../include/renderer.h"
 
-Renderer::Renderer(const CommandBuffers& command_buffers, const GraphicsPipeline* pipeline, PresentSwapchain* swapchain, const LogicalDevice* device, VkQueue graphics, VkQueue present, const Allocator* allocator)  :
+Renderer::Renderer(const CommandPool* pool, const CommandBuffers& command_buffers, const GraphicsPipeline* pipeline, PresentSwapchain* swapchain, const LogicalDevice* device, VkQueue graphics, VkQueue present, const Allocator* allocator)  :
                                                                                                                                                           _commandBuffers(command_buffers),
                                                                                                                                                           _pipeline(pipeline),
                                                                                                                                                           _swapchain(swapchain),
                                                                                                                                                           _device(device),
                                                                                                                                                           _graphicsQueue(graphics),
                                                                                                                                                           _presentQueue(present),
-                                                                                                                                                          _allocator(allocator)
-
+                                                                                                                                                          _allocator(allocator),
+                                                                                                                                                          _pool(pool)
 {
-    CreateBuffers();
+    CreateVertexBuffer();
+    CreateIndexBuffer();
     CreateSyncObjects();
 
     auto subresourceRange = GetImageSubresourceRange();
@@ -200,44 +201,116 @@ void Renderer::RecordCommandBuffer(VkCommandBuffer buffer, VkImageView imageView
     vkEndCommandBuffer(buffer);
 }
 
-void Renderer::CreateBuffers()
+void Renderer::CreateVertexBuffer()
 {
     VkDeviceSize vertexBufferSize = sizeof(vertices[0]) * vertices.size();
+
+    VkBuffer stagingBuffer;
+    VmaAllocation stagingMemory;
+    VmaAllocationInfo stagingAllocInfo;
+
+    VkBufferCreateInfo stagingCreateInfo {};
+    stagingCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    stagingCreateInfo.size = vertexBufferSize;
+    stagingCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    stagingCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VmaAllocationCreateInfo stagingAllocCreateInfo{};
+    stagingAllocCreateInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+    stagingAllocCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+
+    _allocator->CreateBuffer(stagingCreateInfo, stagingAllocCreateInfo, &stagingBuffer, &stagingMemory, &stagingAllocInfo);
+
+    memcpy(stagingAllocInfo.pMappedData, vertices.data(), vertexBufferSize);
 
     VkBufferCreateInfo vertexBufferInfo{};
     vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     vertexBufferInfo.size = vertexBufferSize;
-    vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    vertexBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
     vertexBufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     VmaAllocationCreateInfo allocInfo{};
-    allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-    allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
-                      VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    allocInfo.flags = 0;
 
-    VmaAllocationInfo allocationInfo{};
-    _allocator->CreateBuffer(vertexBufferInfo, allocInfo, &_vertexBuffer, &_vertexBufferMemory, &allocationInfo);
+    _allocator->CreateBuffer(vertexBufferInfo, allocInfo, &_vertexBuffer, &_vertexBufferMemory, nullptr);
 
-    std::memcpy(allocationInfo.pMappedData, vertices.data(), static_cast<size_t>(vertexBufferSize));
+    CopyBuffer(stagingBuffer, _vertexBuffer, vertexBufferSize);
+    vmaDestroyBuffer(_allocator->GetAllocator(), stagingBuffer, stagingMemory);
+}
 
-
+void Renderer::CreateIndexBuffer()
+{
     VkDeviceSize indexBufferSize = sizeof(indices[0]) * indices.size();
+
+    VkBuffer stagingBuffer;
+    VmaAllocation stagingMemory;
+    VmaAllocationInfo stagingAllocInfo;
+
+    VkBufferCreateInfo stagingCreateInfo {};
+    stagingCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    stagingCreateInfo.size = indexBufferSize;
+    stagingCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    stagingCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VmaAllocationCreateInfo stagingAllocCreateInfo{};
+    stagingAllocCreateInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+    stagingAllocCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+
+    _allocator->CreateBuffer(stagingCreateInfo, stagingAllocCreateInfo, &stagingBuffer, &stagingMemory, &stagingAllocInfo);
+
+    memcpy(stagingAllocInfo.pMappedData, indices.data(), indexBufferSize);
 
     VkBufferCreateInfo indexBufferInfo{};
     indexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     indexBufferInfo.size = indexBufferSize;
-    indexBufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+    indexBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
     indexBufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     VmaAllocationCreateInfo indexAllocCreateInfo{};
-    indexAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
-    indexAllocCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
-                                  VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    indexAllocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    indexAllocCreateInfo.flags = 0;
 
-    VmaAllocationInfo indexAllocInfo{};
-    _allocator->CreateBuffer(indexBufferInfo, indexAllocCreateInfo, &_indexBuffer, &_indexBufferMemory, &indexAllocInfo);
+    _allocator->CreateBuffer(indexBufferInfo, indexAllocCreateInfo, &_indexBuffer, &_indexBufferMemory, nullptr);
 
-    std::memcpy(indexAllocInfo.pMappedData, indices.data(), indexBufferSize);
+    CopyBuffer(stagingBuffer, _indexBuffer, indexBufferSize);
+    vmaDestroyBuffer(_allocator->GetAllocator(), stagingBuffer, stagingMemory);
+}
+
+void Renderer::CopyBuffer(VkBuffer src, VkBuffer dst, VkDeviceSize size)
+{
+    VkCommandBufferAllocateInfo allocateInfo {};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocateInfo.commandPool = _pool->GetCommandPool();
+    allocateInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(_device->GetDevice(), &allocateInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    VkBufferCopy copyRegion {};
+    copyRegion.srcOffset = 0;
+    copyRegion.dstOffset = 0;
+    copyRegion.size = size;
+    vkCmdCopyBuffer(commandBuffer, src, dst, 1, &copyRegion);
+
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(_graphicsQueue);
+
+    vkFreeCommandBuffers(_device->GetDevice(), _pool->GetCommandPool(), 1, &commandBuffer);
 }
 
 void Renderer::CreateSyncObjects()

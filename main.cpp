@@ -19,8 +19,7 @@
 std::vector<const char*> GetRequiredExtensions()
 {
     uint32_t glfwExtensionsCount = 0;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionsCount);
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionsCount);
 
     std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -117,7 +116,7 @@ int main()
 
     std::unique_ptr<LogicalDevice> logicalDevice = std::make_unique<LogicalDevice>(*device);
 
-    std::unique_ptr<PresentSwapchain> swapchain = std::make_unique<PresentSwapchain>(*device, logicalDevice.get(), window.WindowPointer(), surface->GetSurface(), VK_NULL_HANDLE);
+    std::unique_ptr<PresentSwapchain> swapchain = std::make_unique<PresentSwapchain>(device.get(), logicalDevice.get(), window.WindowPointer(), surface->GetSurface(), VK_NULL_HANDLE);
 
     std::unique_ptr<PipelineLayout> layout = std::make_unique<PipelineLayout>(std::vector<VkDescriptorSetLayout>(), std::vector<VkPushConstantRange>(), logicalDevice.get());
 
@@ -140,7 +139,7 @@ int main()
     vkGetDeviceQueue(logicalDevice.get()->GetDevice(), device.get()->GetFamilies(device.get()->GetPhysicalDevice()).at(PRESENT), 0, &present);
 
     std::unique_ptr<Allocator> allocator = std::make_unique<Allocator>(device.get(), logicalDevice.get(), instance.get());
-    std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>(*commandBuffers.get(), pipeline.get(), swapchain.get(), logicalDevice.get(), graphics, present, allocator.get());
+    std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>(pool.get(), *commandBuffers.get(), pipeline.get(), swapchain.get(), logicalDevice.get(), graphics, present, allocator.get());
 
     while (!glfwWindowShouldClose(window.WindowPointer()))
     {

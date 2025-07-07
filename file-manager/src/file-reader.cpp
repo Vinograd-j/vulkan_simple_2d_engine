@@ -10,12 +10,11 @@ std::vector<char> FileReader::ReadFromFile(const std::string& fileName) const
     if (!file.is_open())
         throw std::runtime_error("failed to open file. Check filename and path");
 
-    size_t fileSize = (size_t) file.tellg();
+    size_t fileSize = file.tellg();
 
     std::vector<char> buffer(fileSize);
 
     file.seekg(0);
-
     file.read(buffer.data(), fileSize);
 
     file.close();

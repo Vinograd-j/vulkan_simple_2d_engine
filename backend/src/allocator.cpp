@@ -9,12 +9,12 @@ Allocator::Allocator(const PhysicalDevice* physicalDevice, const LogicalDevice* 
     CreateAllocator();
 }
 
-void Allocator::CreateBuffer(const VkBufferCreateInfo& createInfo, VmaAllocationCreateInfo& allocationInfo, VkBuffer* buffer, VmaAllocation* memory, VmaAllocationInfo* allocInfo) const
+void Allocator::CreateBuffer(const VkBufferCreateInfo& createInfo, const VmaAllocationCreateInfo& allocationInfo, VkBuffer* buffer, VmaAllocation* memory, VmaAllocationInfo* allocInfo) const
 {
     vmaCreateBuffer(_allocator, &createInfo, &allocationInfo, buffer, memory, allocInfo);
 }
 
-void Allocator::CreateImage(const VkImageCreateInfo& createInfo, VmaAllocationCreateInfo& allocationInfo, VkImage* image, VmaAllocation* memory) const
+void Allocator::CreateImage(const VkImageCreateInfo& createInfo, const VmaAllocationCreateInfo& allocationInfo, VkImage* image, VmaAllocation* memory) const
 {
     vmaCreateImage(_allocator, &createInfo, &allocationInfo, image, memory, nullptr);
 }

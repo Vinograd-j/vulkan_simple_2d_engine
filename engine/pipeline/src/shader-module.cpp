@@ -1,6 +1,6 @@
 #include "../include/shader-module.h"
 
-ShaderModule::ShaderModule(LogicalDevice* device, const VkShaderStageFlagBits& shaderStage, const std::string& shaderName) : _device(device), _shaderName(shaderName), _stage(shaderStage)
+ShaderModule::ShaderModule(const LogicalDevice* device, const VkShaderStageFlagBits& shaderStage, const std::string& shaderName) : _device(device), _shaderName(shaderName), _stage(shaderStage)
 {
     CreateShaderModule();
     CreateShaderStage();
@@ -8,6 +8,7 @@ ShaderModule::ShaderModule(LogicalDevice* device, const VkShaderStageFlagBits& s
 
 void ShaderModule::CreateShaderModule()
 {
+
     auto shaderCode = _fileReader.ReadFromFile(std::string("shaders") + "/" + _shaderName + ".spv");
 
     VkShaderModuleCreateInfo createInfo {};

@@ -38,7 +38,7 @@ private:
 
     std::vector<VkDescriptorSet> _descriptorsSet;
 
-    const VkDevice* _device;
+    const VkDevice* const _device;
 
 public:
 

@@ -10,7 +10,7 @@ private:
 
     FileReader _fileReader;
 
-    LogicalDevice* _device;
+    const LogicalDevice* const _device;
 
     VkShaderStageFlagBits _stage {};
 
@@ -24,7 +24,7 @@ private:
 
 public:
 
-    explicit ShaderModule(LogicalDevice* device, const VkShaderStageFlagBits& stage, const std::string& shaderName);
+    explicit ShaderModule(const LogicalDevice* device, const VkShaderStageFlagBits& stage, const std::string& shaderName);
     ~ShaderModule();
 
     VkShaderModule GetShaderModule() const { return _shaderModule; }

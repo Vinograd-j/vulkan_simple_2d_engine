@@ -13,7 +13,7 @@ private:
 
     VkInstance _instance;
 
-    GLFWwindow* _window;
+    GLFWwindow* const _window;
 
 public:
 

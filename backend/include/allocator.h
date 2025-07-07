@@ -28,10 +28,11 @@ public:
 
 public:
 
-    void CreateBuffer(const VkBufferCreateInfo& createInfo, VmaAllocationCreateInfo& allocationInfo, VkBuffer* buffer, VmaAllocation* memory, VmaAllocationInfo
+    void CreateBuffer(const VkBufferCreateInfo& createInfo, const VmaAllocationCreateInfo& allocationInfo, VkBuffer* buffer, VmaAllocation* memory, VmaAllocationInfo
                       * allocInfo) const;
 
-    void CreateImage(const VkImageCreateInfo& createInfo, VmaAllocationCreateInfo& allocationInfo, VkImage* image, VmaAllocation* memory) const;
+    void CreateImage(const VkImageCreateInfo& createInfo, const VmaAllocationCreateInfo& allocationInfo, VkImage* image, VmaAllocation*
+                     memory) const;
 
 private:
 

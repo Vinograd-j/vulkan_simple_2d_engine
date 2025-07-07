@@ -12,7 +12,7 @@ private:
 
     VkPipelineLayout _pipelineLayout {};
 
-    LogicalDevice* _device;
+    const LogicalDevice* const _device;
 
 private:
 
@@ -22,7 +22,7 @@ private:
 
 public:
 
-    explicit PipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSetLayout, const std::vector<VkPushConstantRange>& pushConstants, LogicalDevice* device);
+    explicit PipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSetLayout, const std::vector<VkPushConstantRange>& pushConstants, const LogicalDevice* device);
 
     VkPipelineLayout GetPiplineLayout() const { return _pipelineLayout; }
 

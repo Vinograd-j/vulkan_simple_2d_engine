@@ -20,15 +20,15 @@ protected:
 
 protected:
 
-    PhysicalDevice _physicalDevice;
-    const LogicalDevice* _device;
+    const PhysicalDevice* const _physicalDevice;
+    const LogicalDevice* const _device;
     VkSurfaceKHR _surface;
 
-    GLFWwindow* _window;
+    GLFWwindow* const _window;
 
 public:
 
-    explicit ISwapchain(const PhysicalDevice& physicalDevice, const LogicalDevice* device, GLFWwindow* window, const VkSurfaceKHR& surface) :
+    explicit ISwapchain(const PhysicalDevice* physicalDevice, const LogicalDevice* device, GLFWwindow* window, const VkSurfaceKHR& surface) :
                                                                                                                                              _physicalDevice(physicalDevice),
                                                                                                                                              _device(device),
                                                                                                                                              _surface(surface),

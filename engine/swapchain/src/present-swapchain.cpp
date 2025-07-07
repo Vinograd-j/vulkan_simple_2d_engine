@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-PresentSwapchain::PresentSwapchain(const PhysicalDevice& physicalDevice, LogicalDevice* device, GLFWwindow* window, const VkSurfaceKHR& surface, const VkSwapchainKHR& oldSwapchain) :
+PresentSwapchain::PresentSwapchain(const PhysicalDevice* physicalDevice, const LogicalDevice* device, GLFWwindow* window, const VkSurfaceKHR& surface, const VkSwapchainKHR& oldSwapchain) :
                                                                                                                                                     ISwapchain(physicalDevice, device, window, surface)
 {
     PresentSwapchain::CreateSwapchain(oldSwapchain);
@@ -10,7 +10,7 @@ PresentSwapchain::PresentSwapchain(const PhysicalDevice& physicalDevice, Logical
 
 void PresentSwapchain::CreateSwapchain(const VkSwapchainKHR& oldSwapchain)
 {
-    _swapChainSupportDetails = _physicalDevice.QuerySwapChainSupportDetails(_physicalDevice.GetPhysicalDevice());
+    _swapChainSupportDetails = _physicalDevice->QuerySwapChainSupportDetails(_physicalDevice->GetPhysicalDevice());
 
     ChooseSurfaceFormat();
     ChooseExtent();
@@ -31,7 +31,7 @@ void PresentSwapchain::CreateSwapchain(const VkSwapchainKHR& oldSwapchain)
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    auto indices = _physicalDevice.GetFamilies(_physicalDevice.GetPhysicalDevice());
+    auto indices = _physicalDevice->GetFamilies(_physicalDevice->GetPhysicalDevice());
     uint32_t queueFamilyIndices[] = {indices.at(GRAPHICS), indices.at(PRESENT)};
 
     if (indices.at(GRAPHICS) != indices.at(PRESENT))

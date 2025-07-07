@@ -12,7 +12,7 @@ private:
 
     std::vector<VkDescriptorSetLayoutBinding> _bindings {};
 
-    const VkDevice* _device;
+    const VkDevice* const _device;
 
 public:
 
