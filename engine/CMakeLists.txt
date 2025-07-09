@@ -20,6 +20,17 @@ add_library(engine
         renderer/command-buffer/include/command-buffers.h
         renderer/command-buffer/src/command-pool.cpp
         renderer/command-buffer/include/command-pool.h
+        renderer/src/synchronization.cpp
+        renderer/include/synchronization.h
+        renderer/src/image-memory-barrier.cpp
+        renderer/include/image-memory-barrier.h
+        renderer/buffers/src/vertex-buffer.cpp
+        renderer/buffers/include/vertex-buffer.h
+        renderer/buffers/src/index-buffer.cpp
+        renderer/buffers/include/index-buffer.h
+        renderer/src/square-drawer.cpp
+        renderer/include/square-drawer.h
+        renderer/buffers/include/buffer.h
 )
 
 target_include_directories(engine PUBLIC include)

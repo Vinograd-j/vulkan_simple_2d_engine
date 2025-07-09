@@ -8,7 +8,6 @@ ShaderModule::ShaderModule(const LogicalDevice* device, const VkShaderStageFlagB
 
 void ShaderModule::CreateShaderModule()
 {
-
     auto shaderCode = _fileReader.ReadFromFile(std::string("shaders") + "/" + _shaderName + ".spv");
 
     VkShaderModuleCreateInfo createInfo {};

@@ -132,14 +132,8 @@ int main()
 
     std::unique_ptr<CommandBuffers> commandBuffers = std::make_unique<CommandBuffers>(2, VK_COMMAND_BUFFER_LEVEL_PRIMARY, pool.get()->GetCommandPool(), logicalDevice.get());
 
-    VkQueue graphics;
-    vkGetDeviceQueue(logicalDevice.get()->GetDevice(), device.get()->GetFamilies(device.get()->GetPhysicalDevice()).at(GRAPHICS), 0, &graphics);
-
-    VkQueue present;
-    vkGetDeviceQueue(logicalDevice.get()->GetDevice(), device.get()->GetFamilies(device.get()->GetPhysicalDevice()).at(PRESENT), 0, &present);
-
     std::unique_ptr<Allocator> allocator = std::make_unique<Allocator>(device.get(), logicalDevice.get(), instance.get());
-    std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>(pool.get(), *commandBuffers.get(), pipeline.get(), swapchain.get(), logicalDevice.get(), graphics, present, allocator.get());
+    std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>(pool.get(), *commandBuffers.get(), pipeline.get(), swapchain.get(), logicalDevice.get(), allocator.get());
 
     while (!glfwWindowShouldClose(window.WindowPointer()))
     {
