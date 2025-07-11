@@ -1,6 +1,6 @@
 #include "../include/surface.h"
 
-Surface::Surface(VkInstance instance, GLFWwindow* window) : _instance(instance), _window(window)
+Surface::Surface(const VkInstance instance, GLFWwindow* window) : _instance(instance), _window(window)
 {
     CreateSurface();
 }

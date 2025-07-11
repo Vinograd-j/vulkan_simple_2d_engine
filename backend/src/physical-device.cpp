@@ -85,7 +85,6 @@ std::map<FamilyType, uint32_t> PhysicalDevice::GetFamilies(const VkPhysicalDevic
     return familyTypeToIndex;
 }
 
-
 QueueFamilyIndices PhysicalDevice::FindQueueFamilies(const VkPhysicalDevice& device) const
 {
     QueueFamilyIndices indices;
